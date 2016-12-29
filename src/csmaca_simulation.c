@@ -1,7 +1,9 @@
 /*
- For CSMA/CA Simulation
+ For WiFi EDCA Simulation
  Joseph (Yi-Fang,Chen)
- Date: October 22, 2016
+ Date: Dec 29, 2016
+ 
+ http://www.invocom.et.put.poznan.pl/~invocom/C/P1-4/p1-4_en/p1-4_7_4.htm
 */
 #include <stdlib.h>
 #include <stdio.h>
@@ -12,21 +14,20 @@
 #define min(a,b) (((a)<(b))?(a):(b))  
 #define CW 1
 #define BE 3  
-#define MAX_NB 7
-#define MAX_FRAME_SIZE 10 
-#define N 40 // max number of nodes
-#define MAX_ROUND_TEST 5000 //used for average the result 
-#define FREEZE 0  //1: enable; 0:disable
-int node_q=1; //variable
-
+#define MAX_NB 10  //maximum backoff slot
+#define MAX_FRAME_SIZE 2 
+#define N 2 // max number of nodes
+#define MAX_ROUND_TEST 1 // average the result 
+#define FREEZE 1  //1: enable; 0:disable
+int node_q=N; //initial value for the number of node
 int game_over=0;
-int frame_size=1; //data lenth
+int frame_size=MAX_FRAME_SIZE; //initial data lenth
 
 
 
 
-#define WRITE_FILE 1  //1: enable; 0:disable
-#define JOSEPH_DEBUG 0
+#define WRITE_FILE 0  //1: enable; 0:disable
+#define JOSEPH_DEBUG 1
 
 #if JOSEPH_DEBUG==1
 #define dbg_printf(fmt, s...)	do{printf(fmt, ##s);}while(0)  
@@ -91,7 +92,7 @@ int main()
    //for random number , call only once  
    srand(time(0)); 
                                  
-for (frame_size=1;frame_size<=MAX_FRAME_SIZE;frame_size++) {   
+for (;frame_size<=MAX_FRAME_SIZE;frame_size++) {   
 	dbg_printf("Frame size=%d==>\n",frame_size);
 	#if WRITE_FILE==1 
 	sprintf(filename,"L%d.txt",frame_size);
@@ -101,7 +102,7 @@ for (frame_size=1;frame_size<=MAX_FRAME_SIZE;frame_size++) {
 		 exit(1);
 	} 
 	#endif  
-	for(node_q=1;node_q<=N;node_q++) { 
+	for(;node_q<=N;node_q++) { 
 		dbg_printf("Number of node=%d:\n",node_q);                               
 		total_time=0;                             
 		for (round_i=1;round_i<=MAX_ROUND_TEST;round_i++) {     
@@ -120,15 +121,12 @@ for (frame_size=1;frame_size<=MAX_FRAME_SIZE;frame_size++) {
 				for(i=0;i<node_q ;i++) {
 					if (node[i].state==COMPLETE || node[i].state==FAILURE)
 						continue;
-                 	if (node[i].state==START)  //do backoff                     
+                 	if (node[i].state==START)  //do backoff for each attempt                     
 						do_backoff(&node[i]);
        
   
 					if(node[i].state==BACKOFF) {
-                      #if FREEZE==0                          
-						node[i].bp--;
-                        
-                      #else 
+ 
                         if (ch0.state==IDLE){ 
                          node[i].bp--; 
                          
@@ -137,9 +135,9 @@ for (frame_size=1;frame_size<=MAX_FRAME_SIZE;frame_size++) {
                                 
                         }                         
                       
-                      #endif  
+                    
                                                     
-						node[i].bp=max(0,node[i].bp);
+						node[i].bp=max(0,node[i].bp); //min of bp is 0
        
 					}
     
