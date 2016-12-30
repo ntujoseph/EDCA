@@ -12,14 +12,14 @@
 #include <string.h>
 #define max(a,b) (((a)>(b))?(a):(b)) 
 #define min(a,b) (((a)<(b))?(a):(b))  
-#define CW 1
+#define AIFS 2
 #define BE 3  
 #define MAX_NB 10  //maximum backoff slot
 #define MAX_FRAME_SIZE 2 
-#define N 2 // max number of nodes
+#define N 4 // max number of nodes
 #define MAX_ROUND_TEST 1 // average the result 
 #define FREEZE 1  //1: enable; 0:disable
-int node_q=N; //initial value for the number of node
+int node_q=1; //initial value for the number of node
 int game_over=0;
 int frame_size=MAX_FRAME_SIZE; //initial data lenth
 
@@ -35,16 +35,17 @@ int frame_size=MAX_FRAME_SIZE; //initial data lenth
 #define dbg_printf(fmt, s...)
 #endif	
 
-enum State {START,BACKOFF,CCA,TRANSMIT,COMPLETE,FAILURE};
-char Str_State[][16]={"Start","Backoff","CCA","Transmit","Complete","Failure"};
-enum Ch_State {IDLE=0,ACTIVE,COLLISION};
-char Str_Ch_State[][16]={"Idle","Active","Collision"};
+enum State {START,BACKOFF,DIFS,TRANSMIT,COMPLETE,FAILURE};
+char Str_State[][16]={"Start","Backoff","DIFS","Transmit","Complete","Failure"};
+enum Ch_State {IDLE=0,BUSY,COLLISION,IDLE_DIFS,IN_DIFS};
+char Str_Ch_State[][16]={"Idle","Busy","Collision","Idle+DIFS","idle-DIFS"};
 
 #define PRINT_FMT "%d\t%6.3lf\n" 
 
 
 typedef struct {    
 enum Ch_State state;     //channel state
+enum Ch_State pre_state;     //previous channel state
 char users[N];  //active user list
 int n_users;    //the number of active  user
 unsigned long  complete_users[N]; //record the completion time for each user in this channel
@@ -60,11 +61,15 @@ unsigned long long total_time=0; //used for average
 typedef struct
 {
   char id;
-  int cw;  //contention window
+  int ifs;  
+  int cw_min;  
+  int cw_max;  
+  int var_ifs;
   int be; //backoff exponent
   int nb; //the number of backoff
-  int bp; //backoff period
+  int cw; //backoff period (//contention window)
   int d_len;  //frame length
+  enum Ch_State ch_state;
   enum State state;
 }Node;
 
@@ -74,20 +79,22 @@ typedef Node * pNode;
 void init(pNode p,int size);
 void reset_node (pNode p);
 void show_state (pNode p,int size);
-int get_channel_state(pNode p,int size);
+int update_channel_state(pNode p,int size);
 void do_backoff(pNode p);
-void do_cca(pNode p);
 void show_report(pNode p,int size);
 void show_round_report(pNode p,int size);
-
 int main()
 {
-
+ 
  int i;
- unsigned long t;
+ unsigned long t=0;
  Node node[N];
  char filename[32];
+	//for(t=0;t<100000;t++)
+	//   printf("t=%ld\n",t);
 
+  // exit(0);   
+    
 
    //for random number , call only once  
    srand(time(0)); 
@@ -103,15 +110,22 @@ for (;frame_size<=MAX_FRAME_SIZE;frame_size++) {
 	} 
 	#endif  
 	for(;node_q<=N;node_q++) { 
+	
 		dbg_printf("Number of node=%d:\n",node_q);                               
 		total_time=0;                             
 		for (round_i=1;round_i<=MAX_ROUND_TEST;round_i++) {     
 			dbg_printf("Round%d:\n",round_i);    
             init(node,N);
-			for(t=0;t<10000000;t++)
+			update_channel_state(node,node_q);  
+			 dbg_printf(">>>>>>Channel 0 State:%s\n",Str_Ch_State[ch0.state]);
+			for(t=0;t<100;t++)
 			{ 
-				dbg_printf("t=%ld==>\n",t);
-				show_state(node,node_q);   
+				dbg_printf("t=%ld:\n",t);
+			
+			    
+				 show_state(node,node_q);  
+			  
+				//dbg_printf("@@@@%c:AIFS=%d,BE=%d,NB=%d,cw=%d,state=%d\n",node[i].id, node[i].ifs, node[i].be, node[i].nb, node[i].cw,node[i].state) ;  
    				if (game_over==1) {   
 					ch0.last_complete_time=t;     
 					total_time+=ch0.last_complete_time;                          
@@ -119,57 +133,85 @@ for (;frame_size<=MAX_FRAME_SIZE;frame_size++) {
 				}   
   
 				for(i=0;i<node_q ;i++) {
+	//-----------State Machine------------------------------------------------------------------------------			
+
 					if (node[i].state==COMPLETE || node[i].state==FAILURE)
 						continue;
-                 	if (node[i].state==START)  //do backoff for each attempt                     
-						do_backoff(&node[i]);
-       
+			  
+           
+			   
+				   switch (ch0.state) {
   
-					if(node[i].state==BACKOFF) {
- 
-                        if (ch0.state==IDLE){ 
-                         node[i].bp--; 
-                         
-                        } else {
-                          ; // do-nothing , because we "Freeze" in backoff period  
-                                
-                        }                         
-                      
-                    
-                                                    
-						node[i].bp=max(0,node[i].bp); //min of bp is 0
-       
-					}
-    
-					if(node[i].state==BACKOFF && node[i].bp==0)
-						node[i].state=CCA;        
-					else if (node[i].state==CCA)
-						do_cca(&node[i]);
-        
-        
-					 if(node[i].state==CCA && node[i].cw==0) {
-						if (ch0.state==IDLE) 
-							node[i].state=TRANSMIT;
-						else 
+					   
+					   case IDLE:
+	                          node[i].var_ifs++;
+  	                         if(node[i].var_ifs > node[i].ifs) {
+								 printf("1\n");	
+                                if (node[i].state==START) {						
+							        node[i].state=TRANSMIT; 
+									node[i].d_len--;	
+								    node[i].var_ifs=0;		
+									printf("2\n");										
+					   		   }
+							 }
+							 if (node[i].state==BACKOFF && node[i].cw <=0) { 
+									   node[i].cw=0;
+                                       node[i].state=TRANSMIT;	
+                                       node[i].d_len--;										   
+									   
+							 } else if (node[i].state==BACKOFF)	{
+								   if (ch0.state==IDLE && node[i].var_ifs >= node[i].ifs )
+										node[i].cw--;  	
+							         
+							 }
+					
+					        break;
+
+							
+					   case BUSY: 		
+                            node[i].var_ifs=0;					   
+							if (node[i].state==TRANSMIT)
+								     node[i].d_len--;								 
+							if(node[i].d_len==0) {
+								node[i].state=COMPLETE;	 		
+								printf("%c: complete\n",node[i].id);
+								ch0.complete_users[i]=t;
+							}								
+					
+					       break;
+					
+					   case COLLISION: 
+                           node[i].var_ifs=0;			
+						
+						  if(node[i].d_len==0) {
+							 reset_node(&node[i]);
 							 do_backoff(&node[i]);
-					 } else if (node[i].state==TRANSMIT) {
-						node[i].d_len--;
-						if (node[i].d_len==0){
-							if (ch0.state==COLLISION){ 
-								//wc check channel for each time slot, so collision only occurs here                       
-								reset_node(&node[i]);
-							} else { 
-								node[i].state=COMPLETE;
-								ch0.complete_users[i]=t+1;
-							}   
-						}  
-					 }       
-     
- 
-  
-				}
+							  node[i].cw--;  				
+
+						}		
+                         
+						 if (node[i].state==TRANSMIT)  
+								 node[i].d_len--;								 
+													
+					 
+					      break;					   
+					   
+				 } //end switch 	   
+			 printf("%c:,D=%d,state=%s\n", node[i].id,node[i].d_len,Str_State[node[i].state]) ; 
+	 
+			
+			
+                }
+    
+            
+
+
+			
+  //----------------------------------------------------------------------------------------------------------------------
+			
 				//after this time slot, we check the channel state 
-				get_channel_state(node,node_q);  
+				update_channel_state(node,node_q);  
+				 dbg_printf(">>>>>>Channel 0 State:%s\n",Str_Ch_State[ch0.state]);
   			} // end for loop t
 			show_report(node,node_q);  
 		} //end for loop each round 
@@ -184,8 +226,6 @@ for (;frame_size<=MAX_FRAME_SIZE;frame_size++) {
  }  //end for frame_size increament  
  
 
-  printf("Press any KEY to exit");   
- getchar();
 return 0;
 }
 
@@ -197,7 +237,9 @@ void init(pNode p,int size)
      
     int i;   
    //init node 
+   
    for(i=0;i<size;i++) {
+	 memset(&p[i],0,sizeof(Node));
      p[i].id='A'+i;
      reset_node(&p[i]);            
      }  
@@ -218,12 +260,14 @@ void reset_node (pNode p)
 {
 
    
-     p->cw=CW;
+     p->ifs=AIFS;
+     p->cw_min=3;  
+     p->cw_max=1024;  
      p->be=BE;
-     p->nb=0; 
-     p->bp=0;
+     p->cw=0;
      p->d_len=frame_size;
-     p->state=START; //init state                
+     p->state=START; //init state     
+   	 
                
      
 } 
@@ -285,15 +329,14 @@ void show_state (pNode p,int size)
     int i;   
    for(i=0;i<size;i++) {
       if(p[i].state==COMPLETE) continue; 
-    dbg_printf("%c:CW=%d,BE=%d,NB=%d,bp=%d,D=%d,state=%s\n",
-       p[i].id,p[i].cw,p[i].be,p[i].nb,p[i].bp,p[i].d_len,Str_State[p[i].state]) ;           
-     }     
-     dbg_printf("Channel 0 State:%s",Str_Ch_State[ch0.state]);
-     for(i=0;i<ch0.n_users;i++) {
-       dbg_printf("  %c  ", ch0.users[i]) ;           
-     }       
-          
-       dbg_printf("\n") ;         
+	  
+	//     dbg_printf("%c:AIFS=%d,BE=%d,NB=%d,cw=%d,var_ifs=%d\n",
+     //  p[i].id,p[i].ifs,p[i].be,p[i].nb,p[i].cw,p[i].var_ifs) ;           
+    // } 
+   dbg_printf("%c:AIFS=%d,BE=%d,NB=%d,cw=%d,D=%d,var_ifs=%d\n",
+       p[i].id,p[i].ifs,p[i].be,p[i].nb,p[i].cw,p[i].d_len,p[i].var_ifs) ;           
+    }     
+   
 }           
 
 
@@ -302,7 +345,7 @@ void show_state (pNode p,int size)
 // c=1 , someone is transmiting (maybe the yourself)
 // c=2 , must be collision
 // if c==1, but you are not in TRANSMIT state, then you should backoff 
-int get_channel_state(pNode p,int size)
+int update_channel_state(pNode p,int size)
 {
                 
    int i; 
@@ -317,53 +360,49 @@ int get_channel_state(pNode p,int size)
         
                
        }   
-  
-  
+	   
+   ch0.pre_state=ch0.state;	   
   if (c==0) ch0.state=IDLE;
-  else if (c==1) ch0.state=ACTIVE;
+  else if (c==1) ch0.state=BUSY;
   else if (c>1) ch0.state=COLLISION;
-  
   if (j==node_q) game_over=1;   
   
   ch0.n_users=c;
+  
+  
+   
+     for(i=0;i<ch0.n_users;i++) {
+       dbg_printf("  %c  ", ch0.users[i]) ;           
+     }       
+          
+       dbg_printf("\n") ;         
+  
   return c; 
 
 }
 
+
 void do_backoff(pNode p)
 {
    int mod;
+   p->state=BACKOFF;
+   
    if(p->nb==MAX_NB) {
       p->state=FAILURE;  // give up
       return ;
     }
    mod =(int)pow(2,p->be);  
   
-   p->bp=rand()%mod;  //get 0~2^be-1
+   p->cw=rand()%mod;  //get 0~(2^be-1)
 
-   p->state=(p->bp>0)?BACKOFF:CCA;
+ 
    p->nb++;
    p->be++; 
-   p->cw=CW;
-   dbg_printf("%s: %c:CW=%d,BE=%d,NB=%d,bp=%d,state=%s\n",__func__, p->id, p->cw, p->be, p->nb, p->bp,"Backoff") ;           
-         
-   
-
+   p->ifs=AIFS;
+   dbg_printf("%s: %c:AIFS=%d,BE=%d,NB=%d,cw=%d,state=%s\n",__func__, p->id, p->ifs, p->be, p->nb, p->cw,"Backoff") ;           
    
   
 }
-
-void do_cca(pNode p)
-{
-   p->state=CCA;  
-   p->cw--;
-   p->be=BE;
-   p->nb=0; 
-   p->bp=0;
-   dbg_printf("%s: %c:CW=%d,BE=%d,NB=%d,bp=%d,state=%s\n",__func__, p->id, p->cw, p->be, p->nb, p->bp,"CCA") ;  
-}
-
-
 
 
 
