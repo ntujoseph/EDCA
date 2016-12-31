@@ -15,10 +15,10 @@
 #define BE 3  
 #define MAX_NB 10  //maximum backoff slot
 #define MAX_FRAME_SIZE 2 
-#define N 1  // max number of nodes
+#define N 4  // max number of nodes
 #define MAX_ROUND_TEST 1 // average the result 
 #define FREEZE 1  //1: enable; 0:disable
-int node_q=1; //initial value for the number of node
+int node_q=4; //initial value for the number of node
 int game_over=0;
 int frame_size=MAX_FRAME_SIZE; //initial data lenth
 
@@ -65,6 +65,7 @@ typedef struct
   int cw_min;  
   int cw_max;  
   int var_ifs;
+  int num_collisions;
   int be; //backoff exponent
   int nb; //the number of backoff
   int cw; //backoff period (//contention window)
@@ -182,7 +183,7 @@ for (;frame_size<=MAX_FRAME_SIZE;frame_size++) {
 							 reset_node(&node[i]);
 							 do_backoff(&node[i]);
 							  node[i].cw--;  				
-
+                             node[i].num_collisions++;
 						}		
                          
 						 if (node[i].state==TRANSMIT)  
@@ -249,8 +250,10 @@ void init(pNode p,int size)
      reset_node(&p[i]);    
     	 
      }  
-	 
-	//p[0].ifs=2*(i+1);
+	//for 1:1
+    p[3].ifs=p[2].ifs; 
+	p[3].cw_max=p[2].cw_max; 
+	p[3].cw_min=p[2].cw_min; 
    
    //init channel
    memset(&ch0,0,sizeof(Channel));
@@ -260,7 +263,7 @@ void init(pNode p,int size)
    ch0.start_users[i]=-1;
              
    }		 
-	/*joseph:假設 channel一開始即為有人在傳送, 且每個人一開始就想傳,
+	/*joseph:假設 channel一開始為有人在傳送, 且每個人一開始就想傳,
      所以一開始就要做do_backoff()	
 	*/	 
 	 for(i=0;i<size;i++) {
@@ -313,7 +316,7 @@ void show_report(pNode p,int size)
      T=(double)frame_size/(ch0.complete_users[i]+1);
 	  t1=ch0.start_users[i];
 	  t2=ch0.complete_users[i];
-      printf("%c (AIFS=%d,cwmax=%d,cwmin=%d)t1=%-3ld,t2=%-3ld(channel access time=%-3ld,total t=%-3ld), throughput=%6.2lf\n", p[i].id,p[i].ifs,p[i].cw_max,p[i].cw_min,t1,t2,t2-t1+1,t2+1,T);      
+      printf("%c (AIFS=%d,cwmax=%d,cwmin=%d)t1=%-3ld,t2=%-3ld(channel access time=%-3ld,total t=%-3ld),collsion=%d,throughput=%6.2lf\n", p[i].id,p[i].ifs,p[i].cw_max,p[i].cw_min,t1,t2,t2-t1+1,t2+1,p[i].num_collisions,T);      
    }  
    
    printf("\n===========================\n");    
