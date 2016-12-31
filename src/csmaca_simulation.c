@@ -12,11 +12,10 @@
 #include <string.h>
 #define max(a,b) (((a)>(b))?(a):(b)) 
 #define min(a,b) (((a)<(b))?(a):(b))  
-#define AIFS 2
 #define BE 3  
 #define MAX_NB 10  //maximum backoff slot
 #define MAX_FRAME_SIZE 2 
-#define N 4 // max number of nodes
+#define N 1 // max number of nodes
 #define MAX_ROUND_TEST 1 // average the result 
 #define FREEZE 1  //1: enable; 0:disable
 int node_q=1; //initial value for the number of node
@@ -117,20 +116,17 @@ for (;frame_size<=MAX_FRAME_SIZE;frame_size++) {
 			dbg_printf("Round%d:\n",round_i);    
             init(node,N);
 			update_channel_state(node,node_q);  
+			
 			 dbg_printf(">>>>>>Channel 0 State:%s\n",Str_Ch_State[ch0.state]);
-			for(t=0;t<100;t++)
+			for(t=0;t<20;t++)
 			{ 
 				dbg_printf("t=%ld:\n",t);
 			
 			    
 				 show_state(node,node_q);  
 			  
-				//dbg_printf("@@@@%c:AIFS=%d,BE=%d,NB=%d,cw=%d,state=%d\n",node[i].id, node[i].ifs, node[i].be, node[i].nb, node[i].cw,node[i].state) ;  
-   				if (game_over==1) {   
-					ch0.last_complete_time=t;     
-					total_time+=ch0.last_complete_time;                          
-					break; 
-				}   
+				
+   		 
   
 				for(i=0;i<node_q ;i++) {
 	//-----------State Machine------------------------------------------------------------------------------			
@@ -146,23 +142,26 @@ for (;frame_size<=MAX_FRAME_SIZE;frame_size++) {
 					   case IDLE:
 	                          node[i].var_ifs++;
   	                         if(node[i].var_ifs > node[i].ifs) {
-								 printf("1\n");	
-                                if (node[i].state==START) {						
+								  if (node[i].state==START) {						
 							        node[i].state=TRANSMIT; 
 									node[i].d_len--;	
 								    node[i].var_ifs=0;		
-									printf("2\n");										
+																		
 					   		   }
 							 }
 							 if (node[i].state==BACKOFF && node[i].cw <=0) { 
 									   node[i].cw=0;
-                                       node[i].state=TRANSMIT;	
-                                       node[i].d_len--;										   
+									   node[i].state=TRANSMIT;	
+                                       node[i].d_len--;	
+									   
+                                       									   
 									   
 							 } else if (node[i].state==BACKOFF)	{
-								   if (ch0.state==IDLE && node[i].var_ifs >= node[i].ifs )
+								   if (ch0.state==IDLE && node[i].var_ifs > node[i].ifs ) {
 										node[i].cw--;  	
-							         
+											
+										
+								   }
 							 }
 					
 					        break;
@@ -174,8 +173,8 @@ for (;frame_size<=MAX_FRAME_SIZE;frame_size++) {
 								     node[i].d_len--;								 
 							if(node[i].d_len==0) {
 								node[i].state=COMPLETE;	 		
-								printf("%c: complete\n",node[i].id);
-								ch0.complete_users[i]=t;
+								dbg_printf("%c: complete\n",node[i].id);
+								ch0.complete_users[i]=t; //because we start at t=0, not t=1
 							}								
 					
 					       break;
@@ -197,14 +196,18 @@ for (;frame_size<=MAX_FRAME_SIZE;frame_size++) {
 					      break;					   
 					   
 				 } //end switch 	   
-			 printf("%c:,D=%d,state=%s\n", node[i].id,node[i].d_len,Str_State[node[i].state]) ; 
+			 dbg_printf("%c:,D=%d,state=%s\n", node[i].id,node[i].d_len,Str_State[node[i].state]) ; 
 	 
 			
 			
                 }
     
             
-
+                if (game_over==1) {   
+					ch0.last_complete_time=t;     
+					total_time+=ch0.last_complete_time;                          
+					break; 
+				}  
 
 			
   //----------------------------------------------------------------------------------------------------------------------
@@ -241,30 +244,37 @@ void init(pNode p,int size)
    for(i=0;i<size;i++) {
 	 memset(&p[i],0,sizeof(Node));
      p[i].id='A'+i;
-     reset_node(&p[i]);            
+	 p[i].ifs=2*(i+1);
+     p[i].cw_max=1024/(i+1);  
+	 p[i].cw_min=0;  
+     reset_node(&p[i]);    
+    	 
      }  
    
    //init channel
    memset(&ch0,0,sizeof(Channel));
    ch0.last_complete_time=0xFFFFFFFF;
              
+			 
+	/*joseph:假設 channel一開始即為IDLE, 每個人一開始即想傳,
+     所以一開始就要做do_backoff()	
+	*/	 
+	 for(i=0;i<size;i++) {
+           do_backoff(&p[i]);
+     }	 
+			 
+			 
    //for each round
    game_over=0;   
-   
-   
-
-   
+    
 }    
 
 void reset_node (pNode p)
 {
-
-   
-     p->ifs=AIFS;
-     p->cw_min=3;  
-     p->cw_max=1024;  
+   //reset to constant value  
      p->be=BE;
      p->cw=0;
+	 p->var_ifs=0;
      p->d_len=frame_size;
      p->state=START; //init state     
    	 
@@ -289,15 +299,16 @@ void show_report(pNode p,int size)
   printf("%d\t%d\t%d\t%ld\t%6.2lf\n",round_i,frame_size,size,ch0.last_complete_time,overall_T);  
 
 
-#if 0    //list throughput for each node
+#if 1    //list throughput for each node
 
   for(i=0;i<size;i++) {
-     T=(double)frame_size/ch0.complete_users[i];
-      printf("%c complete at t=%5ld, throughput=%6.2lf\n", p[i].id,ch0.complete_users[i],T);      
+     T=(double)frame_size/(ch0.complete_users[i]+1);
+      printf("%c (AIFS=%d,cwmax=%d,cwmin=%d)complete at t=%-4ld(total t=%-4ld), throughput=%6.2lf\n", p[i].id,p[i].ifs,p[i].cw_max,p[i].cw_min,ch0.complete_users[i],ch0.complete_users[i]+1,T);      
    }  
-   printf("last complete time:%ld\n",ch0.last_complete_time);  
+   
+   printf("\n===========================\n");    
 #endif         
-  dbg_printf("\n--------------------\n");    
+ 
 }      
 
 
@@ -333,8 +344,8 @@ void show_state (pNode p,int size)
 	//     dbg_printf("%c:AIFS=%d,BE=%d,NB=%d,cw=%d,var_ifs=%d\n",
      //  p[i].id,p[i].ifs,p[i].be,p[i].nb,p[i].cw,p[i].var_ifs) ;           
     // } 
-   dbg_printf("%c:AIFS=%d,BE=%d,NB=%d,cw=%d,D=%d,var_ifs=%d\n",
-       p[i].id,p[i].ifs,p[i].be,p[i].nb,p[i].cw,p[i].d_len,p[i].var_ifs) ;           
+   dbg_printf("%c:AIFS=%d,cwmax=%d,cwmin=%d,BE=%d,NB=%d,cw=%d,D=%d,var_ifs=%d\n",
+       p[i].id,p[i].ifs,p[i].cw_max,p[i].cw_min,p[i].be,p[i].nb,p[i].cw,p[i].d_len,p[i].var_ifs) ;           
     }     
    
 }           
@@ -395,10 +406,11 @@ void do_backoff(pNode p)
   
    p->cw=rand()%mod;  //get 0~(2^be-1)
 
- 
+   p->cw=max(p->cw_min,p->cw); //min cw is cwmin	
+   p->cw=min(p->cw_max,p->cw); //max cw is cwmax
+   
    p->nb++;
    p->be++; 
-   p->ifs=AIFS;
    dbg_printf("%s: %c:AIFS=%d,BE=%d,NB=%d,cw=%d,state=%s\n",__func__, p->id, p->ifs, p->be, p->nb, p->cw,"Backoff") ;           
    
   
