@@ -15,7 +15,7 @@
 #define BE 3  
 #define MAX_NB 10  //maximum backoff slot
 #define MAX_FRAME_SIZE 2 
-#define N 1 // max number of nodes
+#define N 1  // max number of nodes
 #define MAX_ROUND_TEST 1 // average the result 
 #define FREEZE 1  //1: enable; 0:disable
 int node_q=1; //initial value for the number of node
@@ -47,6 +47,7 @@ enum Ch_State state;     //channel state
 enum Ch_State pre_state;     //previous channel state
 char users[N];  //active user list
 int n_users;    //the number of active  user
+unsigned long  start_users[N]; //record the start time for each user in this channel
 unsigned long  complete_users[N]; //record the completion time for each user in this channel
 unsigned long last_complete_time;
 } Channel;
@@ -89,11 +90,6 @@ int main()
  unsigned long t=0;
  Node node[N];
  char filename[32];
-	//for(t=0;t<100000;t++)
-	//   printf("t=%ld\n",t);
-
-  // exit(0);   
-    
 
    //for random number , call only once  
    srand(time(0)); 
@@ -118,7 +114,7 @@ for (;frame_size<=MAX_FRAME_SIZE;frame_size++) {
 			update_channel_state(node,node_q);  
 			
 			 dbg_printf(">>>>>>Channel 0 State:%s\n",Str_Ch_State[ch0.state]);
-			for(t=0;t<20;t++)
+			for(t=0;t<2000;t++)
 			{ 
 				dbg_printf("t=%ld:\n",t);
 			
@@ -197,7 +193,10 @@ for (;frame_size<=MAX_FRAME_SIZE;frame_size++) {
 					   
 				 } //end switch 	   
 			 dbg_printf("%c:,D=%d,state=%s\n", node[i].id,node[i].d_len,Str_State[node[i].state]) ; 
-	 
+	          if(node[i].d_len<MAX_FRAME_SIZE &&  ch0.start_users[i]==-1) {
+				   ch0.start_users[i]=t;
+				   
+			   }
 			
 			
                 }
@@ -208,8 +207,8 @@ for (;frame_size<=MAX_FRAME_SIZE;frame_size++) {
 					total_time+=ch0.last_complete_time;                          
 					break; 
 				}  
-
-			
+           
+		
   //----------------------------------------------------------------------------------------------------------------------
 			
 				//after this time slot, we check the channel state 
@@ -244,18 +243,23 @@ void init(pNode p,int size)
    for(i=0;i<size;i++) {
 	 memset(&p[i],0,sizeof(Node));
      p[i].id='A'+i;
-	 p[i].ifs=2*(i+1);
+	 p[i].ifs=2*(i+1);	
      p[i].cw_max=1024/(i+1);  
 	 p[i].cw_min=0;  
      reset_node(&p[i]);    
     	 
      }  
+	 
+	//p[0].ifs=2*(i+1);
    
    //init channel
    memset(&ch0,0,sizeof(Channel));
    ch0.last_complete_time=0xFFFFFFFF;
+   
+   for(i=0;i<N;i++) {
+   ch0.start_users[i]=-1;
              
-			 
+   }		 
 	/*joseph:假設 channel一開始即為IDLE, 每個人一開始即想傳,
      所以一開始就要做do_backoff()	
 	*/	 
@@ -289,6 +293,7 @@ void show_report(pNode p,int size)
   double overall_T; //   //overall throughtput 
   static int line=0;  
   char wbuf[64];
+  
  
   if (line++==0) {
   printf("Round\tL\tN\ttime\tthroughput\n");
@@ -300,13 +305,19 @@ void show_report(pNode p,int size)
 
 
 #if 1    //list throughput for each node
-
+{
+	unsigned long t1;
+	unsigned long t2;
+	
   for(i=0;i<size;i++) {
      T=(double)frame_size/(ch0.complete_users[i]+1);
-      printf("%c (AIFS=%d,cwmax=%d,cwmin=%d)complete at t=%-4ld(total t=%-4ld), throughput=%6.2lf\n", p[i].id,p[i].ifs,p[i].cw_max,p[i].cw_min,ch0.complete_users[i],ch0.complete_users[i]+1,T);      
+	  t1=ch0.start_users[i];
+	  t2=ch0.complete_users[i];
+      printf("%c (AIFS=%d,cwmax=%d,cwmin=%d)t1=%-3ld,t2=%-3ld(channel access time=%-3ld,total t=%-3ld), throughput=%6.2lf\n", p[i].id,p[i].ifs,p[i].cw_max,p[i].cw_min,t1,t2,t2-t1+1,t2+1,T);      
    }  
    
    printf("\n===========================\n");    
+}
 #endif         
  
 }      
