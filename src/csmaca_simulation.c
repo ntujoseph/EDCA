@@ -14,11 +14,12 @@
 #define min(a,b) (((a)<(b))?(a):(b))  
 #define BE 3  
 #define MAX_NB 10  //maximum backoff slot
-#define MAX_FRAME_SIZE 2 
+#define MAX_FRAME_SIZE 3 
 #define N 4  // max number of nodes
+int node_q=4; //initial value for the number of node
 #define MAX_ROUND_TEST 1 // average the result 
 #define FREEZE 1  //1: enable; 0:disable
-int node_q=4; //initial value for the number of node
+
 int game_over=0;
 int frame_size=MAX_FRAME_SIZE; //initial data lenth
 
@@ -26,7 +27,7 @@ int frame_size=MAX_FRAME_SIZE; //initial data lenth
 
 
 #define WRITE_FILE 0  //1: enable; 0:disable
-#define JOSEPH_DEBUG 1
+#define JOSEPH_DEBUG 0
 
 #if JOSEPH_DEBUG==1
 #define dbg_printf(fmt, s...)	do{printf(fmt, ##s);}while(0)  
@@ -115,7 +116,7 @@ for (;frame_size<=MAX_FRAME_SIZE;frame_size++) {
 			update_channel_state(node,node_q);  
 			
 			 dbg_printf(">>>>>>Channel 0 State:%s\n",Str_Ch_State[ch0.state]);
-			for(t=0;t<2000;t++)
+			for(t=0;t<20000000;t++)
 			{ 
 				dbg_printf("t=%ld:\n",t);
 			
@@ -245,16 +246,17 @@ void init(pNode p,int size)
 	 memset(&p[i],0,sizeof(Node));
      p[i].id='A'+i;
 	 p[i].ifs=2*(i+1);	
-     p[i].cw_max=1024/(i+1);  
-	 p[i].cw_min=0;  
+     p[i].cw_max=(int)pow(2,BE+i); 
+	 p[i].cw_min=p[i].ifs/(i+1);  
      reset_node(&p[i]);    
     	 
      }  
 	//for 1:1
-    p[3].ifs=p[2].ifs; 
-	p[3].cw_max=p[2].cw_max; 
-	p[3].cw_min=p[2].cw_min; 
-   
+	#if N>=4
+    p[2].ifs=p[3].ifs; 
+	p[2].cw_max=p[3].cw_max; 
+	p[2].cw_min=p[3].cw_min; 
+   #endif
    //init channel
    memset(&ch0,0,sizeof(Channel));
    ch0.last_complete_time=0xFFFFFFFF;
