@@ -260,7 +260,7 @@ void init(pNode p,int size)
    ch0.start_users[i]=-1;
              
    }		 
-	/*joseph:假設 channel一開始即為IDLE, 每個人一開始即想傳,
+	/*joseph:假設 channel一開始即為有人在傳送, 且每個人一開始就想傳,
      所以一開始就要做do_backoff()	
 	*/	 
 	 for(i=0;i<size;i++) {
