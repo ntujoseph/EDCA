@@ -1,0 +1,244 @@
+-----------------------------------
+A (AIFS=1,cwmax=8,cwmin=4), channel access time=5130,success=451,collsion=62,failure=0,ratio=  0.51
+B (AIFS=2,cwmax=8,cwmin=8), channel access time=2650,success=203,collsion=62,failure=0,ratio=  0.26
+ratio=  1.00
+ratio=  0.52
+
+===========================
+A (AIFS=1,cwmax=8,cwmin=4), channel access time=5090,success=450,collsion=59,failure=0,ratio=  0.51
+B (AIFS=2,cwmax=8,cwmin=8), channel access time=2650,success=206,collsion=59,failure=0,ratio=  0.26
+ratio=  1.00
+ratio=  0.52
+
+===========================
+A (AIFS=1,cwmax=8,cwmin=4), channel access time=5033,success=458,collsion=45,failure=0,ratio=  0.50
+B (AIFS=2,cwmax=8,cwmin=8), channel access time=2600,success=215,collsion=45,failure=0,ratio=  0.26
+ratio=  1.00
+ratio=  0.52
+
+===========================
+A (AIFS=1,cwmax=8,cwmin=4), channel access time=5000,success=458,collsion=42,failure=0,ratio=  0.50
+B (AIFS=2,cwmax=8,cwmin=8), channel access time=2607,success=218,collsion=42,failure=0,ratio=  0.26
+ratio=  1.00
+ratio=  0.52
+
+===========================
+A (AIFS=1,cwmax=8,cwmin=4), channel access time=5040,success=464,collsion=40,failure=0,ratio=  0.50
+B (AIFS=2,cwmax=8,cwmin=8), channel access time=2585,success=218,collsion=40,failure=0,ratio=  0.26
+ratio=  1.00
+ratio=  0.51
+
+===========================
+A (AIFS=1,cwmax=8,cwmin=4), channel access time=5102,success=455,collsion=55,failure=0,ratio=  0.51
+B (AIFS=2,cwmax=8,cwmin=8), channel access time=2630,success=208,collsion=55,failure=0,ratio=  0.26
+ratio=  1.00
+ratio=  0.52
+
+===========================
+A (AIFS=1,cwmax=8,cwmin=4), channel access time=5037,success=453,collsion=50,failure=0,ratio=  0.50
+B (AIFS=2,cwmax=8,cwmin=8), channel access time=2640,success=214,collsion=50,failure=0,ratio=  0.26
+ratio=  1.00
+ratio=  0.52
+
+===========================
+A (AIFS=1,cwmax=8,cwmin=4), channel access time=5130,success=457,collsion=56,failure=0,ratio=  0.51
+B (AIFS=2,cwmax=8,cwmin=8), channel access time=2611,success=205,collsion=56,failure=0,ratio=  0.26
+ratio=  1.00
+ratio=  0.51
+
+===========================
+A (AIFS=1,cwmax=8,cwmin=4), channel access time=5147,success=452,collsion=62,failure=0,ratio=  0.51
+B (AIFS=2,cwmax=8,cwmin=8), channel access time=2650,success=203,collsion=62,failure=0,ratio=  0.26
+ratio=  1.00
+ratio=  0.51
+
+===========================
+A (AIFS=1,cwmax=8,cwmin=4), channel access time=5037,success=461,collsion=42,failure=0,ratio=  0.50
+B (AIFS=2,cwmax=8,cwmin=8), channel access time=2600,success=218,collsion=42,failure=0,ratio=  0.26
+ratio=  1.00
+ratio=  0.52
+
+===========================
+Round=10	L=10	N=2
+A (AIFS=1,cwmax=8,cwmin=4), channel access time=4846,success=394,collsion=90,failure=0,ratio=  0.48
+B (AIFS=2,cwmax=8,cwmin=8), channel access time=2450,success=179,collsion=66,failure=0,ratio=  0.25
+C (AIFS=4,cwmax=8,cwmin=16), channel access time=1190,success=61,collsion=58,failure=0,ratio=  0.12
+ratio=  1.00
+ratio=  0.51
+ratio=  0.25
+
+===========================
+A (AIFS=1,cwmax=8,cwmin=4), channel access time=4870,success=391,collsion=96,failure=0,ratio=  0.49
+B (AIFS=2,cwmax=8,cwmin=8), channel access time=2470,success=166,collsion=81,failure=0,ratio=  0.25
+C (AIFS=4,cwmax=8,cwmin=16), channel access time=1210,success=64,collsion=57,failure=0,ratio=  0.12
+ratio=  1.00
+ratio=  0.51
+ratio=  0.25
+
+===========================
+A (AIFS=1,cwmax=8,cwmin=4), channel access time=4817,success=384,collsion=97,failure=0,ratio=  0.48
+B (AIFS=2,cwmax=8,cwmin=8), channel access time=2430,success=179,collsion=64,failure=0,ratio=  0.24
+C (AIFS=4,cwmax=8,cwmin=16), channel access time=1180,success=67,collsion=51,failure=0,ratio=  0.12
+ratio=  1.00
+ratio=  0.50
+ratio=  0.24
+
+===========================
+A (AIFS=1,cwmax=8,cwmin=4), channel access time=4890,success=388,collsion=101,failure=0,ratio=  0.49
+B (AIFS=2,cwmax=8,cwmin=8), channel access time=2430,success=182,collsion=61,failure=0,ratio=  0.24
+C (AIFS=4,cwmax=8,cwmin=16), channel access time=1190,success=58,collsion=61,failure=0,ratio=  0.12
+ratio=  1.00
+ratio=  0.50
+ratio=  0.24
+
+===========================
+A (AIFS=1,cwmax=8,cwmin=4), channel access time=4797,success=397,collsion=82,failure=0,ratio=  0.48
+B (AIFS=2,cwmax=8,cwmin=8), channel access time=2410,success=184,collsion=57,failure=0,ratio=  0.24
+C (AIFS=4,cwmax=8,cwmin=16), channel access time=1180,success=63,collsion=55,failure=0,ratio=  0.12
+ratio=  1.00
+ratio=  0.50
+ratio=  0.25
+
+===========================
+A (AIFS=1,cwmax=8,cwmin=4), channel access time=4755,success=390,collsion=85,failure=0,ratio=  0.48
+B (AIFS=2,cwmax=8,cwmin=8), channel access time=2440,success=184,collsion=60,failure=0,ratio=  0.24
+C (AIFS=4,cwmax=8,cwmin=16), channel access time=1190,success=61,collsion=58,failure=0,ratio=  0.12
+ratio=  1.00
+ratio=  0.51
+ratio=  0.25
+
+===========================
+A (AIFS=1,cwmax=8,cwmin=4), channel access time=4820,success=389,collsion=93,failure=0,ratio=  0.48
+B (AIFS=2,cwmax=8,cwmin=8), channel access time=2450,success=177,collsion=68,failure=0,ratio=  0.25
+C (AIFS=4,cwmax=8,cwmin=16), channel access time=1200,success=70,collsion=50,failure=0,ratio=  0.12
+ratio=  1.00
+ratio=  0.51
+ratio=  0.25
+
+===========================
+A (AIFS=1,cwmax=8,cwmin=4), channel access time=4822,success=392,collsion=90,failure=0,ratio=  0.48
+B (AIFS=2,cwmax=8,cwmin=8), channel access time=2410,success=183,collsion=58,failure=0,ratio=  0.24
+C (AIFS=4,cwmax=8,cwmin=16), channel access time=1180,success=64,collsion=54,failure=0,ratio=  0.12
+ratio=  1.00
+ratio=  0.50
+ratio=  0.24
+
+===========================
+A (AIFS=1,cwmax=8,cwmin=4), channel access time=4861,success=394,collsion=92,failure=0,ratio=  0.49
+B (AIFS=2,cwmax=8,cwmin=8), channel access time=2430,success=184,collsion=59,failure=0,ratio=  0.24
+C (AIFS=4,cwmax=8,cwmin=16), channel access time=1200,success=53,collsion=67,failure=0,ratio=  0.12
+ratio=  1.00
+ratio=  0.50
+ratio=  0.25
+
+===========================
+A (AIFS=1,cwmax=8,cwmin=4), channel access time=4743,success=393,collsion=81,failure=0,ratio=  0.47
+B (AIFS=2,cwmax=8,cwmin=8), channel access time=2410,success=183,collsion=58,failure=0,ratio=  0.24
+C (AIFS=4,cwmax=8,cwmin=16), channel access time=1170,success=71,collsion=46,failure=0,ratio=  0.12
+ratio=  1.00
+ratio=  0.51
+ratio=  0.25
+
+===========================
+Round=10	L=10	N=3
+A (AIFS=1,cwmax=8,cwmin=4), channel access time=4833,success=392,collsion=91,failure=0,ratio=  0.48
+B (AIFS=2,cwmax=8,cwmin=8), channel access time=2420,success=176,collsion=66,failure=0,ratio=  0.24
+C (AIFS=4,cwmax=8,cwmin=16), channel access time=1270,success=0,collsion=127,failure=0,ratio=  0.13
+D (AIFS=4,cwmax=8,cwmin=16), channel access time=1270,success=0,collsion=127,failure=0,ratio=  0.13
+ratio=  1.00
+ratio=  0.50
+ratio=  0.26
+ratio=  0.26
+
+===========================
+A (AIFS=1,cwmax=8,cwmin=4), channel access time=4790,success=400,collsion=79,failure=0,ratio=  0.48
+B (AIFS=2,cwmax=8,cwmin=8), channel access time=2440,success=169,collsion=75,failure=0,ratio=  0.24
+C (AIFS=4,cwmax=8,cwmin=16), channel access time=1280,success=0,collsion=128,failure=0,ratio=  0.13
+D (AIFS=4,cwmax=8,cwmin=16), channel access time=1280,success=0,collsion=128,failure=0,ratio=  0.13
+ratio=  1.00
+ratio=  0.51
+ratio=  0.27
+ratio=  0.27
+
+===========================
+A (AIFS=1,cwmax=8,cwmin=4), channel access time=4823,success=395,collsion=87,failure=0,ratio=  0.48
+B (AIFS=2,cwmax=8,cwmin=8), channel access time=2440,success=174,collsion=70,failure=0,ratio=  0.24
+C (AIFS=4,cwmax=8,cwmin=16), channel access time=1290,success=0,collsion=129,failure=0,ratio=  0.13
+D (AIFS=4,cwmax=8,cwmin=16), channel access time=1290,success=0,collsion=129,failure=0,ratio=  0.13
+ratio=  1.00
+ratio=  0.51
+ratio=  0.27
+ratio=  0.27
+
+===========================
+A (AIFS=1,cwmax=8,cwmin=4), channel access time=4760,success=382,collsion=94,failure=0,ratio=  0.48
+B (AIFS=2,cwmax=8,cwmin=8), channel access time=2420,success=181,collsion=61,failure=0,ratio=  0.24
+C (AIFS=4,cwmax=8,cwmin=16), channel access time=1270,success=0,collsion=127,failure=0,ratio=  0.13
+D (AIFS=4,cwmax=8,cwmin=16), channel access time=1270,success=0,collsion=127,failure=0,ratio=  0.13
+ratio=  1.00
+ratio=  0.51
+ratio=  0.27
+ratio=  0.27
+
+===========================
+A (AIFS=1,cwmax=8,cwmin=4), channel access time=4772,success=401,collsion=76,failure=0,ratio=  0.48
+B (AIFS=2,cwmax=8,cwmin=8), channel access time=2400,success=177,collsion=63,failure=0,ratio=  0.24
+C (AIFS=4,cwmax=8,cwmin=16), channel access time=1260,success=0,collsion=126,failure=0,ratio=  0.13
+D (AIFS=4,cwmax=8,cwmin=16), channel access time=1260,success=0,collsion=126,failure=0,ratio=  0.13
+ratio=  1.00
+ratio=  0.50
+ratio=  0.26
+ratio=  0.26
+
+===========================
+A (AIFS=1,cwmax=8,cwmin=4), channel access time=4730,success=393,collsion=80,failure=0,ratio=  0.47
+B (AIFS=2,cwmax=8,cwmin=8), channel access time=2400,success=188,collsion=52,failure=0,ratio=  0.24
+C (AIFS=4,cwmax=8,cwmin=16), channel access time=1240,success=0,collsion=124,failure=0,ratio=  0.12
+D (AIFS=4,cwmax=8,cwmin=16), channel access time=1240,success=0,collsion=124,failure=0,ratio=  0.12
+ratio=  1.00
+ratio=  0.51
+ratio=  0.26
+ratio=  0.26
+
+===========================
+A (AIFS=1,cwmax=8,cwmin=4), channel access time=4872,success=393,collsion=94,failure=0,ratio=  0.49
+B (AIFS=2,cwmax=8,cwmin=8), channel access time=2450,success=175,collsion=70,failure=0,ratio=  0.25
+C (AIFS=4,cwmax=8,cwmin=16), channel access time=1260,success=0,collsion=126,failure=0,ratio=  0.13
+D (AIFS=4,cwmax=8,cwmin=16), channel access time=1260,success=0,collsion=126,failure=0,ratio=  0.13
+ratio=  1.00
+ratio=  0.50
+ratio=  0.26
+ratio=  0.26
+
+===========================
+A (AIFS=1,cwmax=8,cwmin=4), channel access time=4885,success=392,collsion=96,failure=0,ratio=  0.49
+B (AIFS=2,cwmax=8,cwmin=8), channel access time=2430,success=177,collsion=66,failure=0,ratio=  0.24
+C (AIFS=4,cwmax=8,cwmin=16), channel access time=1270,success=0,collsion=127,failure=0,ratio=  0.13
+D (AIFS=4,cwmax=8,cwmin=16), channel access time=1270,success=0,collsion=127,failure=0,ratio=  0.13
+ratio=  1.00
+ratio=  0.50
+ratio=  0.26
+ratio=  0.26
+
+===========================
+A (AIFS=1,cwmax=8,cwmin=4), channel access time=4890,success=388,collsion=101,failure=0,ratio=  0.49
+B (AIFS=2,cwmax=8,cwmin=8), channel access time=2470,success=165,collsion=82,failure=0,ratio=  0.25
+C (AIFS=4,cwmax=8,cwmin=16), channel access time=1300,success=0,collsion=130,failure=0,ratio=  0.13
+D (AIFS=4,cwmax=8,cwmin=16), channel access time=1300,success=0,collsion=130,failure=0,ratio=  0.13
+ratio=  1.00
+ratio=  0.51
+ratio=  0.27
+ratio=  0.27
+
+===========================
+A (AIFS=1,cwmax=8,cwmin=4), channel access time=4804,success=402,collsion=78,failure=0,ratio=  0.48
+B (AIFS=2,cwmax=8,cwmin=8), channel access time=2390,success=179,collsion=60,failure=0,ratio=  0.24
+C (AIFS=4,cwmax=8,cwmin=16), channel access time=1244,success=0,collsion=124,failure=0,ratio=  0.12
+D (AIFS=4,cwmax=8,cwmin=16), channel access time=1244,success=0,collsion=124,failure=0,ratio=  0.12
+ratio=  1.00
+ratio=  0.50
+ratio=  0.26
+ratio=  0.26
+
+===========================
+Round=10	L=10	N=4
