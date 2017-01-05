@@ -14,20 +14,20 @@
 #define min(a,b) (((a)<(b))?(a):(b))  
 #define BE 3  
 #define MAX_NB 10  //maximum backoff slot
-#define MAX_FRAME_SIZE 3 
-#define N 1  // max number of nodes
-int node_q=1; //initial value for the number of node
-#define MAX_ROUND_TEST 1 // average the result 
+#define MAX_FRAME_SIZE 10 
+#define N 4  // max number of nodes
+int node_q=2; //initial value for the number of node
+#define MAX_ROUND_TEST 10 // average the result 
 #define FREEZE 1  //1: enable; 0:disable
 
-#define MAX_TIME 15
+#define MAX_TIME 10000
 int frame_size=MAX_FRAME_SIZE; //initial data lenth
 
 
 
 
 #define WRITE_FILE 0  //1: enable; 0:disable
-#define JOSEPH_DEBUG 1
+#define JOSEPH_DEBUG 0
 
 #if JOSEPH_DEBUG==1
 #define dbg_printf(fmt, s...)	do{printf(fmt, ##s);}while(0)  
@@ -62,6 +62,7 @@ typedef struct
 {
   int num_collisions;
   int num_success;
+  int num_failure;  //> MAX_NB
   unsigned long occupied_time;
   
   
@@ -151,11 +152,13 @@ for (;frame_size<=MAX_FRAME_SIZE;frame_size++) {
 					    //wait for Idle long than DIFS, and do random backoff(contention window), if cw=0 enter transmit state 
 						
 					   case IDLE:
-	                          node[i].var_ifs++;
-  	                         if(node[i].var_ifs > node[i].ifs) {
-								  if (node[i].state==START) {//new transmit or re-transmit					
-							         do_backoff(&node[i]);    
-							         node[i].ifs=0;
+	                         
+  	                         if(node[i].var_ifs >= node[i].ifs) {
+								  if (node[i].state==START) {//new transmit or re-transmit	
+                                     dbg_printf("%c sensing is longer than DIFS, so wait random backoff time\n",node[i].id);								  
+							         do_backoff(&node[i]);  
+        					        								 
+							         
 								 }
 							 }
 							  //in backoff state and cw count to 0
@@ -164,15 +167,18 @@ for (;frame_size<=MAX_FRAME_SIZE;frame_size++) {
 									   node[i].state=TRANSMIT;	
                                        node[i].d_len--;	
 									   node[i].info.occupied_time++;
+									   node[i].nb=0;
 												   
 							 } else if (node[i].state==BACKOFF)	{
-								   if (ch0.state==IDLE && node[i].var_ifs > node[i].ifs ) {
+								   if (ch0.state==IDLE && node[i].var_ifs >= node[i].ifs ) {
 										node[i].cw--;  	
 										if(node[i].cw<0) node[i].cw=0;		
 											
 										
 								   }
 							 }
+							 
+							  node[i].var_ifs++;
 					
 					        break;
 
@@ -182,6 +188,7 @@ for (;frame_size<=MAX_FRAME_SIZE;frame_size++) {
 							if (node[i].state==TRANSMIT) {
 								     node[i].d_len--;	
 									 node[i].info.occupied_time++;
+									 node[i].nb=0;
 							}
 							if(node[i].d_len==0) {
 								node[i].state=COMPLETE;	 
@@ -221,8 +228,10 @@ for (;frame_size<=MAX_FRAME_SIZE;frame_size++) {
 					      break;					   
 					   
 				 } //end switch 	   
-			 dbg_printf("%c:,D=%d,time %ld,state=%s\n", node[i].id,node[i].d_len,node[i].info.occupied_time,Str_State[node[i].state]) ; 
 		
+                     				
+			 dbg_printf("%c:,D=%d,time %ld,state=%s,cw=%d\n", node[i].id,node[i].d_len,node[i].info.occupied_time,Str_State[node[i].state],node[i].cw) ; 
+		    
 			
                 }
 
@@ -263,30 +272,29 @@ void init(pNode p,int size)
    for(i=0;i<size;i++) {
 	 memset(&p[i],0,sizeof(Node));
      p[i].id='A'+i;
-	 p[i].ifs=2;	
-     p[i].cw_max=512; 
-	 p[i].cw_min=0;  
-	 /*
-	 p[i].ifs=2*(i+1);	
-     p[i].cw_max=(int)pow(2,BE+i); 
-	 p[i].cw_min=p[i].ifs/(i+1);  
-	 */
+ 
+	 p[i].ifs=1*(i+1);	
+	 p[i].cw_min=(p[i].ifs)*4;
+     p[i].cw_max=8;
+	 
+	 
      reset_node(&p[i]);    
     	 
      }  
-	 /*
+	 
 	//for 1:1
 	#if N>=4
     p[2].ifs=p[3].ifs; 
 	p[2].cw_max=p[3].cw_max; 
 	p[2].cw_min=p[3].cw_min; 
+
    #endif
-   */
+   
    //init channel
    memset(&ch0,0,sizeof(Channel));
 
 		 
-	/*joseph:假設 channel一開始為有人在傳送, 且每個人一開始就想傳,
+	/* 若channel一開始為有人在傳送, 且每個人一開始就想傳,
      所以一開始就要做do_backoff()	
 	*/	 
 	/*
@@ -327,8 +335,13 @@ void show_report(pNode p,int size)
   for(i=0;i<size;i++) {
      //T=(double)frame_size*p[i].info.num_success/p[i].info.occupied_time;
 	  ratio=(float)p[i].info.occupied_time/MAX_TIME;
-	  printf("%c (AIFS=%d,cwmax=%d,cwmin=%d), channel access time=%-3ld,success=%d,collsion=%d,ratio=%6.2lf\n", p[i].id,p[i].ifs,p[i].cw_max,p[i].cw_min,p[i].info.occupied_time,p[i].info.num_success,p[i].info.num_collisions,ratio);      
+	  printf("%c (AIFS=%d,cwmax=%d,cwmin=%d), channel access time=%-3ld,success=%d,collsion=%d,failure=%d,ratio=%6.2lf\n",
+	        p[i].id,p[i].ifs,p[i].cw_max,p[i].cw_min,p[i].info.occupied_time,p[i].info.num_success,p[i].info.num_collisions, p[i].info.num_failure,ratio);      
    }  
+   
+     for(i=0;i<size;i++) {
+   	  printf("ratio=%6.2lf\n",(float) p[i].info.occupied_time/p[0].info.occupied_time);      
+   } 
     printf("\n===========================\n");    
        
  
@@ -363,7 +376,9 @@ void show_state (pNode p,int size)
 
    dbg_printf("%c:AIFS=%d,cwmax=%d,cwmin=%d,BE=%d,NB=%d,cw=%d,D=%d,var_ifs=%d\n",
        p[i].id,p[i].ifs,p[i].cw_max,p[i].cw_min,p[i].be,p[i].nb,p[i].cw,p[i].d_len,p[i].var_ifs) ;           
-    }     
+    }
+
+  	
    
 }           
 
@@ -417,6 +432,11 @@ void do_backoff(pNode p)
    
    if(p->nb==MAX_NB) {
       p->state=FAILURE;  // give up
+	  p->info.num_failure++;
+	  //-------
+	  //restart play again
+	  reset_node(p);
+	  p->nb=0;
       return ;
     }
    mod =(int)pow(2,p->be);  
